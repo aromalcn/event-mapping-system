@@ -18,6 +18,7 @@ urlpatterns = [
     path('organizer/event/<int:event_id>/stages/', views.manage_event_stages, name='manage_event_stages'),
     path('organizer/stage/<int:subsection_id>/schedule/', views.manage_stage_schedule, name='manage_stage_schedule'),
     path('organizer/stage/<int:subsection_id>/add-event/', views.add_stage_event, name='add_stage_event'),
+    path('organizer/stage-event/<int:stage_event_id>/edit/', views.edit_stage_event, name='edit_stage_event'),
     path('api/stage/<int:subsection_id>/details/', views.stage_details_api, name='stage_details_api'),
     path('stage/<int:subsection_id>/events/', views.stage_events_public_view, name='stage_events_public'),
     path('dashboard/user/', views.user_dashboard, name='user_dashboard'),

@@ -14,10 +14,13 @@
         <div style="display: flex; flex-direction: column; gap: 15px;">
             {% for event in events %}
             <div style="background: white; padding: 15px 20px; border-radius: 10px; border-left: 4px solid {{ subsection.color }}; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
                     <h3 style="margin: 0; color: #334155; font-size: 1.1rem;">{{ event.title }}</h3>
-                    <div style="text-align: right; font-size: 0.85rem; color: #64748b; font-weight: 500;">
-                        {{ event.start_time|date:"M d, H:i" }} - {{ event.end_time|date:"H:i" }}
+                    <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 5px;">
+                        <div style="font-size: 0.85rem; color: #64748b; font-weight: 500;">
+                            {{ event.start_time|date:"M d, H:i" }} - {{ event.end_time|date:"H:i" }}
+                        </div>
+                        <a href="{% url 'edit_stage_event' event.id %}" style="font-size: 0.8rem; color: #3b82f6; text-decoration: none; border: 1px solid #3b82f6; padding: 2px 8px; border-radius: 4px; display: inline-block;">Edit</a>
                     </div>
                 </div>
                 <p style="margin: 0; color: #64748b; font-size: 0.95rem;">{{ event.description|default:"No description" }}</p>

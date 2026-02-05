@@ -1,10 +1,50 @@
 {% extends 'base.html' %}
 {% block content %}
+<style>
+    {% if is_iframe %}
+    .main-header { display: none !important; }
+    body { background: white !important; }
+    /* Adjust container padding since header is gone */
+    .container { min-height: 100vh; padding-top: 0 !important; }
+    {% endif %}
+
+    .live-card {
+        background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+        color: white;
+        border-radius: 16px;
+        padding: 25px;
+        box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);
+        position: relative;
+        overflow: hidden;
+        animation: pulse-glow 2s infinite;
+    }
+    .live-badge {
+        background: white;
+        color: #ef4444;
+        padding: 5px 12px;
+        border-radius: 9999px;
+        font-weight: 800;
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    @keyframes pulse-glow {
+        0% { box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4); }
+        50% { box-shadow: 0 5px 25px rgba(239, 68, 68, 0.7); }
+        100% { box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4); }
+    }
+</style>
+
 <div class="container" style="max-width: 600px; margin: 0 auto; min-height: 100vh; background: #fff;">
     <!-- Header with Stage Info -->
     <div style="background: linear-gradient(135deg, {{ subsection.color }} 0%, #0f172a 100%); padding: 30px 20px; color: white; position: relative; overflow: hidden;">
         <div style="position: relative; z-index: 2;">
+            {% if not is_iframe %}
             <a href="javascript:window.close()" style="color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.9rem; display: inline-block; margin-bottom: 15px;">&larr; Back to Map</a>
+            {% endif %}
             <h1 style="margin: 0; font-size: 2rem; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ subsection.name }}</h1>
             <p style="margin: 5px 0 0 0; font-size: 1rem; opacity: 0.9;">{{ event.title }}</p>
             {% if subsection.description %}
@@ -20,18 +60,25 @@
         <!-- LIVE NOW Section -->
         {% if live_event %}
         <div style="margin-bottom: 30px;">
-            <div style="display: flex; align-items: center; margin-bottom: 15px;">
-                <span style="display: inline-block; width: 10px; height: 10px; background: #ef4444; border-radius: 50%; margin-right: 8px; animation: pulse 2s infinite;"></span>
-                <h3 style="margin: 0; color: #ef4444; font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">Live Now</h3>
-            </div>
-            <div style="background: white; border: 1px solid #fee2e2; border-left: 4px solid #ef4444; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.1);">
-                <h2 style="margin: 0 0 8px 0; color: #1e293b; font-size: 1.4rem;">{{ live_event.title }}</h2>
-                <div style="color: #64748b; font-size: 0.95rem; margin-bottom: 12px; font-weight: 500;">
-                    Currently performing until {{ live_event.end_time|date:"H:i" }}
+            <div class="live-card">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                    <span class="live-badge">
+                        <span style="width: 8px; height: 8px; background: #ef4444; border-radius: 50%;"></span>
+                        Live Now
+                    </span>
+                    <span style="font-weight: 600; font-size: 0.9rem; opacity: 0.9;">Until {{ live_event.end_time|date:"H:i" }}</span>
                 </div>
+                
+                <h2 style="margin: 0 0 10px 0; font-size: 1.8rem; font-weight: 800; line-height: 1.2;">{{ live_event.title }}</h2>
+                
                 {% if live_event.description %}
-                <p style="margin: 0; color: #475569; line-height: 1.6;">{{ live_event.description }}</p>
+                <p style="margin: 0; font-size: 1rem; opacity: 0.9; line-height: 1.5;">{{ live_event.description }}</p>
                 {% endif %}
+                
+                <!-- Decorative Elements -->
+                <div style="position: absolute; bottom: -20px; right: -20px; font-size: 8rem; opacity: 0.1;">
+                    🎵
+                </div>
             </div>
         </div>
         {% endif %}
@@ -77,12 +124,4 @@
 
     </div>
 </div>
-
-<style>
-@keyframes pulse {
-    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-    70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
-    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-}
-</style>
 {% endblock %}

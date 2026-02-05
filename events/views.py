@@ -60,7 +60,9 @@ def event_list_api(request):
                 'description': subsection.description,
                 'boundary_coordinates': subsection.boundary_coordinates,
                 'color': subsection.color,
-                'id': subsection.id
+                'id': subsection.id,
+                'is_live': bool(subsection.scheduled_events.filter(start_time__lte=timezone.now(), end_time__gte=timezone.now()).exists()),
+                'live_event_title': subsection.scheduled_events.filter(start_time__lte=timezone.now(), end_time__gte=timezone.now()).first().title if subsection.scheduled_events.filter(start_time__lte=timezone.now(), end_time__gte=timezone.now()).exists() else None
             })
         
         data.append({
@@ -249,7 +251,8 @@ def nearby_events_api(request):
                         'description': s.description,
                         'boundary_coordinates': s.boundary_coordinates,
                         'color': s.color,
-                        'id': s.id
+                        'id': s.id,
+                        'is_live': bool(s.scheduled_events.filter(start_time__lte=timezone.now(), end_time__gte=timezone.now()).exists())
                     } for s in event.subsections.all()]
                 })
         
@@ -350,6 +353,25 @@ def add_stage_event(request, subsection_id):
         form = StageEventForm(subsection=subsection)
     return render(request, 'events/add_stage_event.html', {'form': form, 'subsection': subsection})
 
+@login_required
+@organizer_required
+def edit_stage_event(request, stage_event_id):
+    stage_event = get_object_or_404(StageEvent, id=stage_event_id)
+    subsection = stage_event.subsection
+    
+    # Check ownership
+    if request.user.userprofile.role != 'ADMIN' and subsection.event.organizer != request.user:
+        return redirect('organizer_dashboard')
+
+    if request.method == 'POST':
+        form = StageEventForm(request.POST, instance=stage_event, subsection=subsection)
+        if form.is_valid():
+            form.save()
+            return redirect('manage_stage_schedule', subsection_id=subsection.id)
+    else:
+        form = StageEventForm(instance=stage_event, subsection=subsection)
+    return render(request, 'events/edit_stage_event.html', {'form': form, 'subsection': subsection, 'stage_event': stage_event})
+
 def stage_details_api(request, subsection_id):
     subsection = get_object_or_404(EventSubsection, id=subsection_id)
     now = timezone.now()
@@ -377,6 +399,9 @@ def stage_details_api(request, subsection_id):
     }
     return JsonResponse(data)
 
+from django.views.decorators.clickjacking import xframe_options_sameorigin
+
+@xframe_options_sameorigin
 def stage_events_public_view(request, subsection_id):
     subsection = get_object_or_404(EventSubsection, id=subsection_id)
     now = timezone.now()
@@ -385,11 +410,14 @@ def stage_events_public_view(request, subsection_id):
     past_events = subsection.scheduled_events.filter(end_time__lt=now).order_by('-start_time')
     live_event = subsection.scheduled_events.filter(start_time__lte=now, end_time__gte=now).first()
     
+    is_iframe = request.GET.get('iframe') == 'true'
+    
     return render(request, 'events/stage_events_public.html', {
         'subsection': subsection,
         'live_event': live_event,
         'upcoming_events': upcoming_events,
         'past_events': past_events,
-        'event': subsection.event
+        'event': subsection.event,
+        'is_iframe': is_iframe
     })
 
