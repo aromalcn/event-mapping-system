@@ -214,7 +214,6 @@
                             
                             const subsectionPolygon = L.polygon(subsection.boundary_coordinates, polygonOptions);
                             
-                            // But we need to define the animation in CSS (added pulsing in styles)
                             if (isLive) {
                                 subsectionPolygon.on('add', function() {
                                     if(this._path) this._path.classList.add('pulse-animation');
@@ -251,6 +250,7 @@
                     const listItem = document.createElement('div');
                     listItem.className = 'event-list-item';
                     
+                    const sidebarLiveBadge = hasLiveStages ? '<span style="font-size: 0.75rem; color: #ef4444; font-weight: 700; margin-left: auto;">🔴 LIVE</span>' : '';
                     
                     listItem.innerHTML = `
                         <div style="display: flex; align-items: start;">
