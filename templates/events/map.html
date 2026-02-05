@@ -164,7 +164,12 @@
                     var marker = L.marker([event.latitude, event.longitude]).addTo(map);
                     currentMarkers.addLayer(marker);
 
+                    // Check if any stage is live
+                    const hasLiveStages = event.subsections && event.subsections.some(sub => sub.is_live);
+                    const eventLiveBadge = hasLiveStages ? '<span style="background: #ef4444; color: white; border-radius: 4px; padding: 2px 6px; font-size: 0.7rem; font-weight: bold; margin-bottom: 5px; display: inline-block;">🔴 LIVE NOW</span><br>' : '';
+
                     let popupContent = `
+                        ${eventLiveBadge}
                         <b>${event.title}</b><br>
                         ${event.location_name}<br>
                         <small>${event.date}</small><br>
@@ -192,7 +197,7 @@
                         currentBoundaries.push(boundary);
                     }
                     
-                    // Prepare subsections if they exist
+                    // Prepare subsections if they exist (code omitted for brevity, logic remains same)
                     if (event.subsections && event.subsections.length > 0) {
                         eventSubsectionLayers[event.id] = [];
                         
@@ -209,7 +214,6 @@
                             
                             const subsectionPolygon = L.polygon(subsection.boundary_coordinates, polygonOptions);
                             
-                            // Add custom CSS class if Leaflet supports it via options (Leaflet 1.0+ handles className in Path options)
                             // But we need to define the animation in CSS (added pulsing in styles)
                             if (isLive) {
                                 subsectionPolygon.on('add', function() {
@@ -246,8 +250,13 @@
                     // 2. Add Item to Sidebar List
                     const listItem = document.createElement('div');
                     listItem.className = 'event-list-item';
+                    
+                    
                     listItem.innerHTML = `
-                        <h3 style="margin: 0 0 5px 0; font-size: 1rem; color: #302b63;">${event.title}</h3>
+                        <div style="display: flex; align-items: start;">
+                            <h3 style="margin: 0 0 5px 0; font-size: 1rem; color: #302b63;">${event.title}</h3>
+                            ${sidebarLiveBadge}
+                        </div>
                         <p style="margin: 0; font-size: 0.85rem; color: #666;">📍 ${event.location_name}</p>
                         <p style="margin: 5px 0 0 0; font-size: 0.8rem; color: #999;">📅 ${event.date}</p>
                     `;
